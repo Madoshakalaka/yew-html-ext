@@ -100,8 +100,9 @@ impl Parse for HtmlElement {
                             "the tag `<{name}>` is a void element and cannot have children (hint: \
                              rewrite this as `<{name} />`)",
                         ),
-                    ));
+                    ))
                 }
+
                 _ => {}
             }
         }
@@ -169,27 +170,31 @@ impl ToTokens for HtmlElement {
 
         let node_ref = special.wrap_node_ref_attr();
         let key = special.wrap_key_attr();
-        let value = value
-            .as_ref()
-            .map(|prop| wrap_attr_value(prop.value.optimize_literals(), prop.cfg.as_ref()))
-            .unwrap_or(quote! { ::std::option::Option::None });
-        let checked = checked
-            .as_ref()
-            .map(|attr| {
-                let value = &attr.value;
-                let cfg1 = attr.cfg.iter();
-                let cfg2 = attr.cfg.iter();
-                quote_spanned! { attr.value.span().resolved_at(Span::call_site())=> {
-                    #(#[cfg(#cfg1)])*
-                    let x = ::std::option::Option::Some( #value );
-                    #(
-                        #[cfg(not(#cfg2))]
-                        let x = ::std::option::Option::None;
-                    )*
-                    x
-                }}
-            })
-            .unwrap_or(quote! { ::std::option::Option::None });
+        let value = || {
+            value
+                .as_ref()
+                .map(|prop| wrap_attr_value(prop.value.optimize_literals(), prop.cfg.as_ref()))
+                .unwrap_or_else(|| quote! { ::std::option::Option::None })
+        };
+        let checked = || {
+            checked
+                .as_ref()
+                .map(|attr| {
+                    let value = &attr.value;
+                    let cfg1 = attr.cfg.iter();
+                    let cfg2 = attr.cfg.iter();
+                    quote_spanned! { attr.value.span().resolved_at(Span::call_site())=> {
+                        #(#[cfg(#cfg1)] let x =)*
+                        ::std::option::Option::Some( #value )
+                        #(;
+                            #[cfg(not(#cfg2))]
+                            let x = ::std::option::Option::None;
+                            x
+                        )*
+                    }}
+                })
+                .unwrap_or_else(|| quote! { ::std::option::Option::None })
+        };
 
         // other attributes
 
@@ -379,6 +384,8 @@ impl ToTokens for HtmlElement {
 
                 let node = match &*name {
                     "input" => {
+                        let value = value();
+                        let checked = checked();
                         quote! {
                             ::std::convert::Into::<::yew::virtual_dom::VNode>::into(
                                 ::yew::virtual_dom::VTag::__new_input(
@@ -393,6 +400,7 @@ impl ToTokens for HtmlElement {
                         }
                     }
                     "textarea" => {
+                        let value = value();
                         quote! {
                             ::std::convert::Into::<::yew::virtual_dom::VNode>::into(
                                 ::yew::virtual_dom::VTag::__new_textarea(
@@ -449,6 +457,8 @@ impl ToTokens for HtmlElement {
                     }}
                 });
 
+                let value = value();
+                let checked = checked();
                 // this way we get a nice error message (with the correct span) when the expression
                 // doesn't return a valid value
                 quote_spanned! {expr.span()=> {
