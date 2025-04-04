@@ -56,7 +56,7 @@ fn props_are_cfged_out() {
     }
 
     let x = html! { <feBlend #[cfg(nothing)] id="id" #[cfg(nothing)] key="x" /> };
-    let y = html! { <div /> };
+    let y = html! { <feBlend /> };
     assert_eq!(x, y);
 
     let x = html! { <Foo #[cfg(nothing)] x=69 #[cfg(nothing)] key="x" /> };

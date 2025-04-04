@@ -977,7 +977,7 @@ error[E0277]: the trait bound `VChild<Child>: From<VNode>` is not satisfied
    --> tests/html_macro/component-fail.rs:117:29
     |
 117 |     html! { <ChildContainer><></></ChildContainer> };
-    |                             ^^^^^ the trait `From<VNode>` is not implemented for `VChild<Child>`
+    |                             ^ the trait `From<VNode>` is not implemented for `VChild<Child>`
     |
     = note: required for `VNode` to implement `Into<VChild<Child>>`
 

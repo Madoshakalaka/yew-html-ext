@@ -204,7 +204,7 @@ error[E0308]: mismatched types
   --> tests/html_macro/element-fail.rs:35:29
    |
 35 |     html! { <input checked={Some(false)} /> };
-   |                             ^^^^^^^^^^^ expected `Option<bool>`, found `Option<Option<bool>>`
+   |                             ^^^^ expected `Option<bool>`, found `Option<Option<bool>>`
    |
    = note: expected enum `Option<bool>`
               found enum `Option<Option<bool>>`
@@ -329,7 +329,10 @@ error[E0277]: the trait bound `Option<NotToString>: IntoPropValue<Option<implici
   --> tests/html_macro/element-fail.rs:45:23
    |
 45 |     html! { <a media={Some(NotToString)} /> };
-   |                       ^^^^^^^^^^^^^^^^^ the trait `IntoPropValue<Option<implicit_clone::unsync::string::IString>>` is not implemented for `Option<NotToString>`
+   |                       ----^^^^^^^^^^^^^
+   |                       |
+   |                       the trait `IntoPropValue<Option<implicit_clone::unsync::string::IString>>` is not implemented for `Option<NotToString>`
+   |                       required by a bound introduced by this call
    |
    = help: the following other types implement trait `IntoPropValue<T>`:
              `Option<&str>` implements `IntoPropValue<Option<String>>`
@@ -344,7 +347,10 @@ error[E0277]: the trait bound `Option<{integer}>: IntoPropValue<Option<implicit_
   --> tests/html_macro/element-fail.rs:46:22
    |
 46 |     html! { <a href={Some(5)} /> };
-   |                      ^^^^^^^ the trait `IntoPropValue<Option<implicit_clone::unsync::string::IString>>` is not implemented for `Option<{integer}>`
+   |                      ----^^^
+   |                      |
+   |                      the trait `IntoPropValue<Option<implicit_clone::unsync::string::IString>>` is not implemented for `Option<{integer}>`
+   |                      required by a bound introduced by this call
    |
    = help: the following other types implement trait `IntoPropValue<T>`:
              `Option<&str>` implements `IntoPropValue<Option<String>>`
@@ -464,7 +470,7 @@ error[E0277]: the trait bound `Option<NodeRef>: IntoPropValue<NodeRef>` is not s
   --> tests/html_macro/element-fail.rs:55:25
    |
 55 |     html! { <input ref={Some(::yew::html::NodeRef::default())} /> };
-   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                         ----^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |                         |
    |                         the trait `IntoPropValue<NodeRef>` is not implemented for `Option<NodeRef>`
    |                         required by a bound introduced by this call
