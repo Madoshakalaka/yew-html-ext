@@ -1,7 +1,9 @@
 use std::collections::HashSet;
 
 use once_cell::sync::Lazy;
-use syn::parse::{Parse, ParseStream};
+use syn::parse::ParseStream;
+
+use crate::html_tree::HtmlDashedName;
 
 use super::{Prop, Props, SpecialProps};
 
@@ -12,12 +14,13 @@ pub struct ElementProps {
     pub booleans: Vec<Prop>,
     pub value: Option<Prop>,
     pub checked: Option<Prop>,
+    pub defaultvalue: Option<Prop>,
     pub special: SpecialProps,
 }
 
-impl Parse for ElementProps {
-    fn parse(input: ParseStream) -> syn::Result<Self> {
-        let mut props = input.parse::<Props>()?;
+impl ElementProps {
+    pub fn parse(input: ParseStream, element: Option<&HtmlDashedName>) -> syn::Result<Self> {
+        let mut props = Props::parse(input, element)?;
 
         let listeners =
             props.drain_filter(|prop| LISTENER_SET.contains(prop.label.to_string().as_str()));
@@ -31,6 +34,7 @@ impl Parse for ElementProps {
         let classes = props.pop("class");
         let value = props.pop("value");
         let checked = props.pop("checked");
+        let defaultvalue = props.pop("defaultvalue");
         let special = props.special;
 
         Ok(Self {
@@ -40,6 +44,7 @@ impl Parse for ElementProps {
             checked,
             booleans: booleans.into_vec(),
             value,
+            defaultvalue,
             special,
         })
     }

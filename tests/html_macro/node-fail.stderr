@@ -10,25 +10,15 @@ error: unexpected token, expected `}`
 5 |     html! { <span>{ "valid" "invalid" }</span> };
   |                             ^^^^^^^^^
 
-error: unsupported type
-  --> tests/html_macro/node-fail.rs:10:14
-   |
-10 |     html! {  b'a' };
-   |              ^^^^
-
-error: unsupported type
+error: byte-strings can't be converted to HTML text
+       note: remove the `b` prefix or convert this to a `String`
   --> tests/html_macro/node-fail.rs:11:14
    |
 11 |     html! {  b"str" };
    |              ^^^^^^
 
-error: unsupported type
-  --> tests/html_macro/node-fail.rs:12:22
-   |
-12 |     html! {  <span>{ b'a' }</span> };
-   |                      ^^^^
-
-error: unsupported type
+error: byte-strings can't be converted to HTML text
+       note: remove the `b` prefix or convert this to a `String`
   --> tests/html_macro/node-fail.rs:13:22
    |
 13 |     html! {  <span>{ b"str" }</span> };
@@ -44,10 +34,8 @@ error[E0277]: `()` doesn't implement `std::fmt::Display`
  --> tests/html_macro/node-fail.rs:6:13
   |
 6 |     html! { () };
-  |             ^^ `()` cannot be formatted with the default formatter
+  |             ^^ the trait `std::fmt::Display` is not implemented for `()`
   |
-  = help: the trait `std::fmt::Display` is not implemented for `()`
-  = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
   = help: the following other types implement trait `From<T>`:
             `VNode` implements `From<ChildrenRenderer<VNode>>`
             `VNode` implements `From<T>`
@@ -66,10 +54,8 @@ error[E0277]: `()` doesn't implement `std::fmt::Display`
   --> tests/html_macro/node-fail.rs:17:9
    |
 17 |         not_node()
-   |         ^^^^^^^^^^ `()` cannot be formatted with the default formatter
+   |         ^^^^^^^^^^ the trait `std::fmt::Display` is not implemented for `()`
    |
-   = help: the trait `std::fmt::Display` is not implemented for `()`
-   = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
    = help: the following other types implement trait `From<T>`:
              `VNode` implements `From<ChildrenRenderer<VNode>>`
              `VNode` implements `From<T>`

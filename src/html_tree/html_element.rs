@@ -1,5 +1,5 @@
 use proc_macro2::{Delimiter, Group, Span, TokenStream};
-use proc_macro_error::emit_warning;
+use proc_macro_error2::emit_warning;
 use quote::{quote, quote_spanned, ToTokens};
 use syn::buffer::Cursor;
 use syn::parse::{Parse, ParseStream};
@@ -13,7 +13,7 @@ use crate::{is_ide_completion, non_capitalized_ascii, Peek, PeekValue};
 
 fn is_normalised_element_name(name: &str) -> bool {
     match name {
-        | "animateMotion"
+        "animateMotion"
         | "animateTransform"
         | "clipPath"
         | "feBlend"
@@ -100,8 +100,9 @@ impl Parse for HtmlElement {
                             "the tag `<{name}>` is a void element and cannot have children (hint: \
                              rewrite this as `<{name} />`)",
                         ),
-                    ));
+                    ))
                 }
+
                 _ => {}
             }
         }
@@ -161,6 +162,7 @@ impl ToTokens for HtmlElement {
             booleans,
             value,
             checked,
+            defaultvalue,
             listeners,
             special,
         } = &props;
@@ -170,6 +172,10 @@ impl ToTokens for HtmlElement {
         let node_ref = special.wrap_node_ref_attr();
         let key = special.wrap_key_attr();
         let value = value
+            .as_ref()
+            .map(|prop| wrap_attr_value(prop.value.optimize_literals(), prop.cfg.as_ref()))
+            .unwrap_or(quote! { ::std::option::Option::None });
+        let defaultvalue = defaultvalue
             .as_ref()
             .map(|prop| wrap_attr_value(prop.value.optimize_literals(), prop.cfg.as_ref()))
             .unwrap_or(quote! { ::std::option::Option::None });
@@ -196,10 +202,10 @@ impl ToTokens for HtmlElement {
         let attributes = {
             let normal_attrs = attributes.iter().map(
                 |Prop {
-                    cfg,
-                    label,
-                    value,
-                    directive,
+                     cfg,
+                     label,
+                     value,
+                     directive,
                  }| {
                     PreparedAttr {
                         cfg: cfg.clone(),
@@ -212,11 +218,11 @@ impl ToTokens for HtmlElement {
 
             let boolean_attrs = booleans.iter().filter_map(
                 |Prop {
-                    cfg,
-                    label,
-                    value,
-                    directive,
-                }| {
+                     cfg,
+                     label,
+                     value,
+                     directive,
+                 }| {
                     let key = label.to_lit_str();
                     Some(PreparedAttr {
                         cfg: cfg.clone(),
@@ -289,11 +295,12 @@ impl ToTokens for HtmlElement {
             }
 
             /// Try to turn attribute list into a `::yew::virtual_dom::Attributes::Static`
-            fn try_into_static(
-                src: &[PreparedAttr],
-            ) -> Option<TokenStream> {
+            fn try_into_static(src: &[PreparedAttr]) -> Option<TokenStream> {
                 let mut kv = Vec::with_capacity(src.len());
-                for PreparedAttr { key, value, cfg, .. } in src.iter() {
+                for PreparedAttr {
+                    key, value, cfg, ..
+                } in src.iter()
+                {
                     let value = match value {
                         Value::Static(v) => quote! {
                             ::yew::virtual_dom::AttributeOrProperty::Static(#v)
@@ -312,18 +319,23 @@ impl ToTokens for HtmlElement {
                 .chain(class_attr)
                 .collect::<Vec<PreparedAttr>>();
             try_into_static(&attrs).unwrap_or_else(|| {
-                let keys = attrs
-                    .iter()
-                    .map(|PreparedAttr { cfg, key, .. }| {
-                        let cfg = cfg.iter();
-                        quote! { #(#[cfg(#cfg)])* #key }
-                    });
-                let values = attrs.iter().map(|PreparedAttr { cfg, value, directive, .. }| {
-                    let apply_as = apply_as(directive.as_ref());
-                    let value = wrap_attr_value(value, cfg.as_ref());
+                let keys = attrs.iter().map(|PreparedAttr { cfg, key, .. }| {
                     let cfg = cfg.iter();
-                    quote! { #(#[cfg(#cfg)])* ::std::option::Option::map(#value, #apply_as) }
+                    quote! { #(#[cfg(#cfg)])* #key }
                 });
+                let values = attrs.iter().map(
+                    |PreparedAttr {
+                         cfg,
+                         value,
+                         directive,
+                         ..
+                     }| {
+                        let apply_as = apply_as(directive.as_ref());
+                        let value = wrap_attr_value(value, cfg.as_ref());
+                        let cfg = cfg.iter();
+                        quote! { #(#[cfg(#cfg)])* ::std::option::Option::map(#value, #apply_as) }
+                    },
+                );
                 quote! {
                     ::yew::virtual_dom::Attributes::Dynamic{
                         keys: &[#(#keys),*],
@@ -336,14 +348,18 @@ impl ToTokens for HtmlElement {
         let listeners = if listeners.is_empty() {
             quote! { ::yew::virtual_dom::listeners::Listeners::None }
         } else {
-            let listeners_it = listeners.iter().map(|Prop { label, value, cfg, .. }| {
-                let name = &label.name;
-                let cfg = cfg.iter();
-                quote! {
-                    #(#[cfg(#cfg)])*
-                    ::yew::html::#name::Wrapper::__macro_new(#value)
-                }
-            });
+            let listeners_it = listeners.iter().map(
+                |Prop {
+                     label, value, cfg, ..
+                 }| {
+                    let name = &label.name;
+                    let cfg = cfg.iter();
+                    quote! {
+                        #(#[cfg(#cfg)])*
+                        ::yew::html::#name::Wrapper::__macro_new(#value)
+                    }
+                },
+            );
 
             quote! {
                 ::yew::virtual_dom::listeners::Listeners::Pending(
@@ -390,6 +406,7 @@ impl ToTokens for HtmlElement {
                             ::std::convert::Into::<::yew::virtual_dom::VNode>::into(
                                 ::yew::virtual_dom::VTag::__new_textarea(
                                     #value,
+                                    #defaultvalue,
                                     #node_ref,
                                     #key,
                                     #attributes,
@@ -469,6 +486,7 @@ impl ToTokens for HtmlElement {
                         _ if "textarea".eq_ignore_ascii_case(::std::convert::AsRef::<::std::primitive::str>::as_ref(&#vtag_name)) => {
                             ::yew::virtual_dom::VTag::__new_textarea(
                                 #value,
+                                #defaultvalue,
                                 #node_ref,
                                 #key,
                                 #attributes,
@@ -521,13 +539,13 @@ fn wrap_attr_value(value: impl ToTokens, cfg: Option<impl ToTokens>) -> TokenStr
     let cfg1 = cfg.iter();
     let cfg2 = cfg.iter();
     quote_spanned! {value.span()=> {
-        #(#[cfg(#cfg1)])*
-        let x = ::yew::html::IntoPropValue::<::std::option::Option<::yew::virtual_dom::AttrValue>>::into_prop_value(#value);
-        #(
+        #(#[cfg(#cfg1)] let x =)*
+        ::yew::html::IntoPropValue::<::std::option::Option<::yew::virtual_dom::AttrValue>>::into_prop_value(#value)
+        #(;
             #[cfg(not(#cfg2))]
             let x = ::std::option::Option::<::yew::virtual_dom::AttrValue>::None;
+            x
         )*
-        x
     }}
 }
 
@@ -662,19 +680,33 @@ impl Parse for HtmlElementOpen {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         TagTokens::parse_start_content(input, |input, tag| {
             let name = input.parse::<TagName>()?;
-            let mut props = input.parse::<ElementProps>()?;
+            let mut props = ElementProps::parse(
+                input,
+                match &name {
+                    TagName::Lit(name) => Some(name),
+                    TagName::Expr(_) => None,
+                },
+            )?;
 
             match &name {
                 TagName::Lit(name) => {
                     // Don't treat value as special for non input / textarea fields
                     // For dynamic tags this is done at runtime!
                     match name.to_ascii_lowercase_string().as_str() {
-                        "input" | "textarea" => {}
+                        "textarea" => {}
+                        "input" => {
+                            if let Some(attr) = props.defaultvalue.take() {
+                                props.attributes.push(attr);
+                            }
+                        }
                         _ => {
                             if let Some(attr) = props.value.take() {
                                 props.attributes.push(attr);
                             }
                             if let Some(attr) = props.checked.take() {
+                                props.attributes.push(attr);
+                            }
+                            if let Some(attr) = props.defaultvalue.take() {
                                 props.attributes.push(attr);
                             }
                         }

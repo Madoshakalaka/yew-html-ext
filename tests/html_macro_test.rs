@@ -1,5 +1,5 @@
-use yew_html_ext::{html, html_nested};
 use yew::{function_component, Html, Properties};
+use yew_html_ext::{html, html_nested};
 
 #[allow(dead_code)]
 //#[rustversion::attr(stable(1.67), test)]
@@ -49,18 +49,58 @@ fn props_are_cfged_out() {
         #[prop_or_default]
         x: i32,
     }
-    
+
     #[function_component]
     fn Foo(_: &FooProps) -> Html {
         Html::default()
     }
 
     let x = html! { <feBlend #[cfg(nothing)] id="id" #[cfg(nothing)] key="x" /> };
-    let y = html! { <div /> };
+    let y = html! { <feBlend /> };
     assert_eq!(x, y);
 
     let x = html! { <Foo #[cfg(nothing)] x=69 #[cfg(nothing)] key="x" /> };
     let y = html! { <Foo /> };
     assert_eq!(x, y);
+}
 
+#[test]
+#[deny(warnings)]
+fn warnings() {
+    let placeholder = "Disabled input";
+    _ = html! {
+        <input placeholder={placeholder} />
+    };
+    _ = html! {
+        <input disabled=true placeholder={placeholder}/>
+    };
+    let placeholder = "Disabled input";
+    _ = html! {
+        <input disabled=true {placeholder} />
+    };
+}
+
+#[test]
+fn textarea_with_defaultvalue() {
+    // Test that textarea with defaultvalue compiles and creates a VTag
+    let textarea_node = html! { <textarea defaultvalue="Default content" /> };
+    match textarea_node {
+        yew::virtual_dom::VNode::VTag(vtag) => {
+            assert_eq!(vtag.tag(), "textarea");
+        }
+        _ => panic!("Expected VTag for textarea"),
+    }
+
+    // Test textarea with both value and defaultvalue
+    let textarea_node = html! { <textarea value="Current" defaultvalue="Default" /> };
+    match textarea_node {
+        yew::virtual_dom::VNode::VTag(vtag) => {
+            assert_eq!(vtag.tag(), "textarea");
+            assert_eq!(
+                vtag.value(),
+                Some(&yew::virtual_dom::AttrValue::Static("Current"))
+            );
+        }
+        _ => panic!("Expected VTag for textarea"),
+    }
 }
