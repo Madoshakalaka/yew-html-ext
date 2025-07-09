@@ -96,7 +96,10 @@ fn textarea_with_defaultvalue() {
     match textarea_node {
         yew::virtual_dom::VNode::VTag(vtag) => {
             assert_eq!(vtag.tag(), "textarea");
-            assert_eq!(vtag.value(), Some(&yew::virtual_dom::AttrValue::Static("Current")));
+            assert_eq!(
+                vtag.value(),
+                Some(&yew::virtual_dom::AttrValue::Static("Current"))
+            );
         }
         _ => panic!("Expected VTag for textarea"),
     }

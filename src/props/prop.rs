@@ -1,13 +1,16 @@
-use std::ops::{Deref, DerefMut};
 use proc_macro2::{Spacing, Span, TokenStream, TokenTree};
 use quote::{quote, quote_spanned};
 use std::convert::TryFrom;
 use std::io::Write;
+use std::ops::{Deref, DerefMut};
 use std::str;
 use syn::parse::{ParseBuffer, ParseStream};
 use syn::spanned::Spanned;
 use syn::token::Brace;
-use syn::{braced, Attribute, Block, Expr, ExprBlock, ExprLit, ExprMacro, ExprPath, ExprRange, Lit, LitStr, Meta, Stmt, Token};
+use syn::{
+    braced, Attribute, Block, Expr, ExprBlock, ExprLit, ExprMacro, ExprPath, ExprRange, Lit,
+    LitStr, Meta, Stmt, Token,
+};
 
 use crate::html_tree::HtmlDashedName;
 use crate::stringify::Stringify;
@@ -33,7 +36,7 @@ impl Prop {
                 Meta::List(list) if list.path.is_ident("cfg") => Ok(list.tokens),
                 _ => Err(syn::Error::new_spanned(
                     attr,
-                    "only the `#[cfg]` attribute is permitted on props"
+                    "only the `#[cfg]` attribute is permitted on props",
                 )),
             })
             .reduce(|acc, i| {

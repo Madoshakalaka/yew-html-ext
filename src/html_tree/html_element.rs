@@ -13,7 +13,7 @@ use crate::{is_ide_completion, non_capitalized_ascii, Peek, PeekValue};
 
 fn is_normalised_element_name(name: &str) -> bool {
     match name {
-        | "animateMotion"
+        "animateMotion"
         | "animateTransform"
         | "clipPath"
         | "feBlend"
@@ -202,10 +202,10 @@ impl ToTokens for HtmlElement {
         let attributes = {
             let normal_attrs = attributes.iter().map(
                 |Prop {
-                    cfg,
-                    label,
-                    value,
-                    directive,
+                     cfg,
+                     label,
+                     value,
+                     directive,
                  }| {
                     PreparedAttr {
                         cfg: cfg.clone(),
@@ -218,11 +218,11 @@ impl ToTokens for HtmlElement {
 
             let boolean_attrs = booleans.iter().filter_map(
                 |Prop {
-                    cfg,
-                    label,
-                    value,
-                    directive,
-                }| {
+                     cfg,
+                     label,
+                     value,
+                     directive,
+                 }| {
                     let key = label.to_lit_str();
                     Some(PreparedAttr {
                         cfg: cfg.clone(),
@@ -295,11 +295,12 @@ impl ToTokens for HtmlElement {
             }
 
             /// Try to turn attribute list into a `::yew::virtual_dom::Attributes::Static`
-            fn try_into_static(
-                src: &[PreparedAttr],
-            ) -> Option<TokenStream> {
+            fn try_into_static(src: &[PreparedAttr]) -> Option<TokenStream> {
                 let mut kv = Vec::with_capacity(src.len());
-                for PreparedAttr { key, value, cfg, .. } in src.iter() {
+                for PreparedAttr {
+                    key, value, cfg, ..
+                } in src.iter()
+                {
                     let value = match value {
                         Value::Static(v) => quote! {
                             ::yew::virtual_dom::AttributeOrProperty::Static(#v)
@@ -318,18 +319,23 @@ impl ToTokens for HtmlElement {
                 .chain(class_attr)
                 .collect::<Vec<PreparedAttr>>();
             try_into_static(&attrs).unwrap_or_else(|| {
-                let keys = attrs
-                    .iter()
-                    .map(|PreparedAttr { cfg, key, .. }| {
-                        let cfg = cfg.iter();
-                        quote! { #(#[cfg(#cfg)])* #key }
-                    });
-                let values = attrs.iter().map(|PreparedAttr { cfg, value, directive, .. }| {
-                    let apply_as = apply_as(directive.as_ref());
-                    let value = wrap_attr_value(value, cfg.as_ref());
+                let keys = attrs.iter().map(|PreparedAttr { cfg, key, .. }| {
                     let cfg = cfg.iter();
-                    quote! { #(#[cfg(#cfg)])* ::std::option::Option::map(#value, #apply_as) }
+                    quote! { #(#[cfg(#cfg)])* #key }
                 });
+                let values = attrs.iter().map(
+                    |PreparedAttr {
+                         cfg,
+                         value,
+                         directive,
+                         ..
+                     }| {
+                        let apply_as = apply_as(directive.as_ref());
+                        let value = wrap_attr_value(value, cfg.as_ref());
+                        let cfg = cfg.iter();
+                        quote! { #(#[cfg(#cfg)])* ::std::option::Option::map(#value, #apply_as) }
+                    },
+                );
                 quote! {
                     ::yew::virtual_dom::Attributes::Dynamic{
                         keys: &[#(#keys),*],
@@ -342,14 +348,18 @@ impl ToTokens for HtmlElement {
         let listeners = if listeners.is_empty() {
             quote! { ::yew::virtual_dom::listeners::Listeners::None }
         } else {
-            let listeners_it = listeners.iter().map(|Prop { label, value, cfg, .. }| {
-                let name = &label.name;
-                let cfg = cfg.iter();
-                quote! {
-                    #(#[cfg(#cfg)])*
-                    ::yew::html::#name::Wrapper::__macro_new(#value)
-                }
-            });
+            let listeners_it = listeners.iter().map(
+                |Prop {
+                     label, value, cfg, ..
+                 }| {
+                    let name = &label.name;
+                    let cfg = cfg.iter();
+                    quote! {
+                        #(#[cfg(#cfg)])*
+                        ::yew::html::#name::Wrapper::__macro_new(#value)
+                    }
+                },
+            );
 
             quote! {
                 ::yew::virtual_dom::listeners::Listeners::Pending(
