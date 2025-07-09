@@ -21,7 +21,7 @@ error[E0599]: the function or associated item `new` exists for struct `VChild<Un
             `Unimplemented: yew::Component`
             which is required by `Unimplemented: BaseComponent`
 note: the trait `yew::Component` must be implemented
-   --> /Users/tim_evilov/.cargo/git/checkouts/yew-7424ad4d701b481c/84b7548/packages/yew/src/html/component/mod.rs:123:1
+   --> /home/maa/.cargo/git/checkouts/yew-07f42ef43f99cbca/69e3b5f/packages/yew/src/html/component/mod.rs:123:1
     |
 123 | pub trait Component: Sized + 'static {
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

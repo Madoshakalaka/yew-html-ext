@@ -39,12 +39,12 @@ pub struct usize;
 use ::yew_html_ext::html;
 
 fn main() {
-    _ = html! { "" };
+    _ = html! { b'b' };
     _ = html! { 'a' };
     _ = html! { "hello" };
-    _ = html! { "42" };
-    _ = html! { "1.234" };
-    _ = html! { "true" };
+    _ = html! { 42 };
+    _ = html! { 1.234 };
+    _ = html! { true };
 
     _ = html! { <span>{ "" }</span> };
     _ = html! { <span>{ 'a' }</span> };

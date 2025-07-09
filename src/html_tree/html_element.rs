@@ -1,5 +1,5 @@
 use proc_macro2::{Delimiter, Group, Span, TokenStream};
-use proc_macro_error::emit_warning;
+use proc_macro_error2::emit_warning;
 use quote::{quote, quote_spanned, ToTokens};
 use syn::buffer::Cursor;
 use syn::parse::{Parse, ParseStream};
@@ -100,8 +100,9 @@ impl Parse for HtmlElement {
                             "the tag `<{name}>` is a void element and cannot have children (hint: \
                              rewrite this as `<{name} />`)",
                         ),
-                    ));
+                    ))
                 }
+
                 _ => {}
             }
         }
@@ -662,7 +663,13 @@ impl Parse for HtmlElementOpen {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         TagTokens::parse_start_content(input, |input, tag| {
             let name = input.parse::<TagName>()?;
-            let mut props = input.parse::<ElementProps>()?;
+            let mut props = ElementProps::parse(
+                input,
+                match &name {
+                    TagName::Lit(name) => Some(name),
+                    TagName::Expr(_) => None,
+                },
+            )?;
 
             match &name {
                 TagName::Lit(name) => {

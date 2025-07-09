@@ -162,7 +162,7 @@ impl ComponentProps {
 
 impl Parse for ComponentProps {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let props = validate(input.parse()?)?;
+        let props = validate(Props::parse(input, None)?)?;
         let base_expr = if input.is_empty() {
             None
         } else {

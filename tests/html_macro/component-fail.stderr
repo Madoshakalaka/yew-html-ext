@@ -781,7 +781,7 @@ note: required for `CheckChildPropertiesAll<AssertAllProps>` to implement `HasAl
    |                 ^^^^^^^^^^^^^^^^^ unsatisfied trait bound introduced in this `derive` macro
    = note: required for `AssertAllProps` to implement `AllPropsFor<ChildPropertiesBuilder, (_,)>`
 note: required by a bound in `html::component::properties::__macro::PreBuild::<Token, B>::build`
-  --> /Users/tim_evilov/.cargo/git/checkouts/yew-7424ad4d701b481c/84b7548/packages/yew/src/html/component/properties.rs:76:20
+  --> /home/maa/.cargo/git/checkouts/yew-07f42ef43f99cbca/69e3b5f/packages/yew/src/html/component/properties.rs:76:20
    |
 74 |         pub fn build<How>(self) -> B::Output
    |                ----- required by a bound in this associated function
@@ -813,7 +813,7 @@ note: required for `CheckChildPropertiesAll<AssertAllProps>` to implement `HasAl
     |                 ^^^^^^^^^^^^^^^^^ unsatisfied trait bound introduced in this `derive` macro
     = note: required for `AssertAllProps` to implement `AllPropsFor<ChildPropertiesBuilder, (_,)>`
 note: required by a bound in `html::component::properties::__macro::PreBuild::<Token, B>::build`
-   --> /Users/tim_evilov/.cargo/git/checkouts/yew-7424ad4d701b481c/84b7548/packages/yew/src/html/component/properties.rs:76:20
+   --> /home/maa/.cargo/git/checkouts/yew-07f42ef43f99cbca/69e3b5f/packages/yew/src/html/component/properties.rs:76:20
     |
 74  |         pub fn build<How>(self) -> B::Output
     |                ----- required by a bound in this associated function
@@ -845,7 +845,7 @@ note: required for `CheckChildPropertiesAll<AssertAllProps>` to implement `HasAl
     |                 ^^^^^^^^^^^^^^^^^ unsatisfied trait bound introduced in this `derive` macro
     = note: required for `AssertAllProps` to implement `AllPropsFor<ChildPropertiesBuilder, (_,)>`
 note: required by a bound in `html::component::properties::__macro::PreBuild::<Token, B>::build`
-   --> /Users/tim_evilov/.cargo/git/checkouts/yew-7424ad4d701b481c/84b7548/packages/yew/src/html/component/properties.rs:76:20
+   --> /home/maa/.cargo/git/checkouts/yew-07f42ef43f99cbca/69e3b5f/packages/yew/src/html/component/properties.rs:76:20
     |
 74  |         pub fn build<How>(self) -> B::Output
     |                ----- required by a bound in this associated function
@@ -904,7 +904,7 @@ note: required for `CheckChildContainerPropertiesAll<AssertAllProps>` to impleme
     |                 ^^^^^^^^^^^^^^^^^ unsatisfied trait bound introduced in this `derive` macro
     = note: required for `AssertAllProps` to implement `AllPropsFor<ChildContainerPropertiesBuilder, (_,)>`
 note: required by a bound in `html::component::properties::__macro::PreBuild::<Token, B>::build`
-   --> /Users/tim_evilov/.cargo/git/checkouts/yew-7424ad4d701b481c/84b7548/packages/yew/src/html/component/properties.rs:76:20
+   --> /home/maa/.cargo/git/checkouts/yew-07f42ef43f99cbca/69e3b5f/packages/yew/src/html/component/properties.rs:76:20
     |
 74  |         pub fn build<How>(self) -> B::Output
     |                ----- required by a bound in this associated function
@@ -936,7 +936,7 @@ note: required for `CheckChildContainerPropertiesAll<AssertAllProps>` to impleme
     |                 ^^^^^^^^^^^^^^^^^ unsatisfied trait bound introduced in this `derive` macro
     = note: required for `AssertAllProps` to implement `AllPropsFor<ChildContainerPropertiesBuilder, (_,)>`
 note: required by a bound in `html::component::properties::__macro::PreBuild::<Token, B>::build`
-   --> /Users/tim_evilov/.cargo/git/checkouts/yew-7424ad4d701b481c/84b7548/packages/yew/src/html/component/properties.rs:76:20
+   --> /home/maa/.cargo/git/checkouts/yew-07f42ef43f99cbca/69e3b5f/packages/yew/src/html/component/properties.rs:76:20
     |
 74  |         pub fn build<How>(self) -> B::Output
     |                ----- required by a bound in this associated function
