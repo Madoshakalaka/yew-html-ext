@@ -79,3 +79,25 @@ fn warnings() {
         <input disabled=true {placeholder} />
     };
 }
+
+#[test]
+fn textarea_with_defaultvalue() {
+    // Test that textarea with defaultvalue compiles and creates a VTag
+    let textarea_node = html! { <textarea defaultvalue="Default content" /> };
+    match textarea_node {
+        yew::virtual_dom::VNode::VTag(vtag) => {
+            assert_eq!(vtag.tag(), "textarea");
+        }
+        _ => panic!("Expected VTag for textarea"),
+    }
+
+    // Test textarea with both value and defaultvalue
+    let textarea_node = html! { <textarea value="Current" defaultvalue="Default" /> };
+    match textarea_node {
+        yew::virtual_dom::VNode::VTag(vtag) => {
+            assert_eq!(vtag.tag(), "textarea");
+            assert_eq!(vtag.value(), Some(&yew::virtual_dom::AttrValue::Static("Current")));
+        }
+        _ => panic!("Expected VTag for textarea"),
+    }
+}

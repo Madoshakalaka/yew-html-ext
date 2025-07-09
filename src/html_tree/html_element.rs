@@ -162,6 +162,7 @@ impl ToTokens for HtmlElement {
             booleans,
             value,
             checked,
+            defaultvalue,
             listeners,
             special,
         } = &props;
@@ -171,6 +172,10 @@ impl ToTokens for HtmlElement {
         let node_ref = special.wrap_node_ref_attr();
         let key = special.wrap_key_attr();
         let value = value
+            .as_ref()
+            .map(|prop| wrap_attr_value(prop.value.optimize_literals(), prop.cfg.as_ref()))
+            .unwrap_or(quote! { ::std::option::Option::None });
+        let defaultvalue = defaultvalue
             .as_ref()
             .map(|prop| wrap_attr_value(prop.value.optimize_literals(), prop.cfg.as_ref()))
             .unwrap_or(quote! { ::std::option::Option::None });
@@ -391,6 +396,7 @@ impl ToTokens for HtmlElement {
                             ::std::convert::Into::<::yew::virtual_dom::VNode>::into(
                                 ::yew::virtual_dom::VTag::__new_textarea(
                                     #value,
+                                    #defaultvalue,
                                     #node_ref,
                                     #key,
                                     #attributes,
@@ -470,6 +476,7 @@ impl ToTokens for HtmlElement {
                         _ if "textarea".eq_ignore_ascii_case(::std::convert::AsRef::<::std::primitive::str>::as_ref(&#vtag_name)) => {
                             ::yew::virtual_dom::VTag::__new_textarea(
                                 #value,
+                                #defaultvalue,
                                 #node_ref,
                                 #key,
                                 #attributes,
@@ -676,12 +683,20 @@ impl Parse for HtmlElementOpen {
                     // Don't treat value as special for non input / textarea fields
                     // For dynamic tags this is done at runtime!
                     match name.to_ascii_lowercase_string().as_str() {
-                        "input" | "textarea" => {}
+                        "textarea" => {}
+                        "input" => {
+                            if let Some(attr) = props.defaultvalue.take() {
+                                props.attributes.push(attr);
+                            }
+                        }
                         _ => {
                             if let Some(attr) = props.value.take() {
                                 props.attributes.push(attr);
                             }
                             if let Some(attr) = props.checked.take() {
+                                props.attributes.push(attr);
+                            }
+                            if let Some(attr) = props.defaultvalue.take() {
                                 props.attributes.push(attr);
                             }
                         }

@@ -14,6 +14,7 @@ pub struct ElementProps {
     pub booleans: Vec<Prop>,
     pub value: Option<Prop>,
     pub checked: Option<Prop>,
+    pub defaultvalue: Option<Prop>,
     pub special: SpecialProps,
 }
 
@@ -33,6 +34,7 @@ impl ElementProps {
         let classes = props.pop("class");
         let value = props.pop("value");
         let checked = props.pop("checked");
+        let defaultvalue = props.pop("defaultvalue");
         let special = props.special;
 
         Ok(Self {
@@ -42,6 +44,7 @@ impl ElementProps {
             checked,
             booleans: booleans.into_vec(),
             value,
+            defaultvalue,
             special,
         })
     }
